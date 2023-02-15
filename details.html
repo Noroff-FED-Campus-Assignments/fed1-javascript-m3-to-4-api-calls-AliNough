@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Code</title>
+    <link rel="stylesheet" href="../style.css" />
+    <script type="module" src="../libs/nav.js"></script>
+    <!-- <script type="module" src="../src/js/detail.js"></script> -->
+  </head>
+  <body>
+    <header>
+      <my-nav></my-nav>
+      <h1>Retrieving Parameters</h1>
+    </header>
+
+    <main>
+      <div class="breadcrumb-nav">
+        <a href="index.html">Back to games</a>
+      </div>
+
+      <div class="game-details">
+        <div class="loader"></div>
+      </div>
+
+      <footer>
+        API powered by <a href="https://rawg.io/" target="_blank">RAWG</a>
+      </footer>
+    </main>
+
+    <script type="module" defer>
+      import message from "/src/js/components/Message.js";
+
+      const detailContainer = document.querySelector(".game-details");
+
+      const queryString = document.location.search;
+
+      console.log(queryString);
+
+      const params = new URLSearchParams(queryString);
+
+      const id = params.get("id");
+
+      console.log(id);
+
+      const url =
+        "https://api.rawg.io/api/games/" +
+        id +
+        "?key=54582cd735a340b89b17702eae51578b";
+
+      console.log(url);
+
+      async function fetchGame() {
+        try {
+          const response = await fetch(url);
+          const jsonData = await response.json();
+
+          console.log(jsonData);
+
+          createHtml(jsonData);
+        } catch (error) {
+          console.log(error);
+          detailContainer.innerHTML = message("error", error);
+        }
+      }
+
+      fetchGame();
+
+      function createHtml(jsonData) {
+        detailContainer.innerHTML = `
+          <h1>${jsonData.name}</h1>
+          <div class="details-image" style="background-image: url('${jsonData.background_image}')"></div>
+          <div class="details-description">${jsonData.description}</div>
+          <div id="genre">Genres: ${jsonData.genres}</div>
+          <time class="details-date">Released: ${jsonData.released}</time>
+          
+          `;
+        jsonData.genres.forEach((genre) => {
+          const element = document.querySelector("#genre");
+          element.innerHTML = `Genres: ${genre.name}`;
+        });
+      }
+    </script>
+  </body>
+</html>
